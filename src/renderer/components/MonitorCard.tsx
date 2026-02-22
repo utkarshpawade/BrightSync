@@ -43,13 +43,13 @@ export class MonitorCard extends React.Component<MonitorCardProps> {
             value={monitor.current}
             onChange={this.handleBrightnessChange}
             disabled={disabled}
-            min={monitor.min}
-            max={monitor.max}
+            min={0}
+            max={100}
           />
 
           <div className="brightness-range">
-            <span>{monitor.min}%</span>
-            <span>{monitor.max}%</span>
+            <span>0%</span>
+            <span>100%</span>
           </div>
         </div>
       </div>

@@ -137,15 +137,17 @@ class App extends React.Component<{}, AppState> {
       const response = await window.brightnessAPI.getMonitors();
 
       if (response.success && response.data) {
-        this.setState({ monitors: response.data });
-
-        // Update master brightness to average of all monitors
-        if (response.data.length > 0) {
-          const avgBrightness =
-            response.data.reduce((sum, m) => sum + m.current, 0) /
-            response.data.length;
-          this.setState({ masterBrightness: Math.round(avgBrightness) });
-        }
+        this.setState((prevState) => ({
+          monitors: response.data!.map((m) => {
+            if (!prevState.syncEnabled) {
+              // Preserve displayed value when sync is off so backend's
+              // hardware-constrained values don't overwrite what we show
+              const existing = prevState.monitors.find((x) => x.id === m.id);
+              return existing ? { ...m, current: existing.current } : m;
+            }
+            return m;
+          }),
+        }));
       } else {
         console.error("Failed to get monitors:", response.error);
       }
@@ -185,6 +187,13 @@ class App extends React.Component<{}, AppState> {
     monitorId: string,
     value: number,
   ): Promise<void> => {
+    // Optimistically update so the value persists even after refreshMonitors
+    this.setState((prevState) => ({
+      monitors: prevState.monitors.map((m) =>
+        m.id === monitorId ? { ...m, current: value } : m,
+      ),
+    }));
+
     try {
       const response = await window.brightnessAPI.setBrightness({
         monitorId,
@@ -210,7 +219,16 @@ class App extends React.Component<{}, AppState> {
       const response = await window.brightnessAPI.toggleSync();
 
       if (response.success && response.data !== undefined) {
-        this.setState({ syncEnabled: response.data });
+        const turningOff = !response.data; // sync is being turned off
+        this.setState((prevState) => ({
+          syncEnabled: response.data as boolean,
+          monitors: turningOff
+            ? prevState.monitors.map((m) => ({
+                ...m,
+                current: prevState.masterBrightness,
+              }))
+            : prevState.monitors,
+        }));
       } else {
         console.error("Failed to toggle sync:", response.error);
       }
@@ -286,7 +304,11 @@ class App extends React.Component<{}, AppState> {
                 {monitors.map((monitor) => (
                   <MonitorCard
                     key={monitor.id}
-                    monitor={monitor}
+                    monitor={
+                      syncEnabled
+                        ? { ...monitor, current: masterBrightness }
+                        : monitor
+                    }
                     onBrightnessChange={this.handleMonitorBrightnessChange}
                     disabled={syncEnabled}
                   />
