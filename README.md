@@ -426,7 +426,7 @@ Contributions are welcome! Please:
 For issues, questions, or suggestions:
 
 - Open an issue on GitHub
-- Email: support@brightsync.app
+- Email: utkarshpawade2@gmail.com
 
 ## Acknowledgments
 
@@ -437,4 +437,4 @@ For issues, questions, or suggestions:
 
 ---
 
-**Built with ❤️ for Windows users who want seamless multi-monitor brightness control**
+**Built with 🛠️☕ for Windows users who want seamless multi-monitor brightness control**
