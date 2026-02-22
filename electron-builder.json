@@ -1,0 +1,22 @@
+{
+  "app-copyright": "Copyright © 2026 BrightSync",
+  "app-category-type": "public.app-category.utilities",
+  "win": {
+    "publisherName": "BrightSync",
+    "verifyUpdateCodeSignature": false
+  },
+  "nsis": {
+    "deleteAppDataOnUninstall": true,
+    "perMachine": false,
+    "runAfterFinish": true,
+    "createDesktopShortcut": "always",
+    "createStartMenuShortcut": true,
+    "menuCategory": true,
+    "installerIcon": "assets/icon.ico",
+    "uninstallerIcon": "assets/icon.ico",
+    "license": "LICENSE"
+  },
+  "publish": null,
+  "compression": "maximum",
+  "electronVersion": "28.0.0"
+}

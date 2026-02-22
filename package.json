@@ -1,0 +1,64 @@
+{
+  "name": "brightsync",
+  "version": "1.0.0",
+  "description": "Cross-Display Brightness Synchronizer for Windows",
+  "main": "./dist/main/main.js",
+  "author": "BrightSync Team",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:native": "node-gyp rebuild",
+    "build:ts": "tsc",
+    "build": "npm run clean && npm run build:ts && npm run build:native",
+    "dev": "npm run build && electron .",
+    "start": "electron .",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0",
+    "node-addon-api": "^7.0.0",
+    "node-gyp": "^10.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "build": {
+    "appId": "com.brightsync.app",
+    "productName": "BrightSync",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "build/Release/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BrightSync"
+    }
+  },
+  "gypfile": true
+}

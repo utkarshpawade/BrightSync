@@ -1,0 +1,415 @@
+/**
+ * BrightSync Stylesheet
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #888;
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main::-webkit-scrollbar-track {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.main::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.main::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Master Control Section */
+.master-control {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.control-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.brightness-value {
+  text-align: center;
+  font-size: 48px;
+  font-weight: 700;
+  margin-top: 20px;
+}
+
+/* Monitors Section */
+.monitors-section {
+  margin-bottom: 20px;
+}
+
+.monitors-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #e0e0e0;
+}
+
+.monitors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.no-monitors {
+  text-align: center;
+  padding: 40px;
+  background: #2a2a2a;
+  border-radius: 12px;
+}
+
+.no-monitors p {
+  color: #888;
+  margin-bottom: 15px;
+}
+
+.no-monitors button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.no-monitors button:hover {
+  background: #5568d3;
+}
+
+/* Monitor Card */
+.monitor-card {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.monitor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.monitor-card.internal {
+  border: 2px solid #667eea;
+}
+
+.monitor-card.external {
+  border: 2px solid #444;
+}
+
+.monitor-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.monitor-icon {
+  font-size: 32px;
+  margin-right: 12px;
+}
+
+.monitor-info {
+  flex: 1;
+}
+
+.monitor-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.monitor-type {
+  font-size: 12px;
+  color: #888;
+}
+
+.monitor-brightness {
+  margin-top: 15px;
+}
+
+.brightness-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.brightness-label .brightness-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.brightness-range {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Brightness Slider */
+.brightness-slider {
+  width: 100%;
+}
+
+.brightness-slider.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.brightness-slider .slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #444;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.brightness-slider.large .slider {
+  height: 12px;
+}
+
+.brightness-slider .slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+}
+
+.brightness-slider.large .slider::-webkit-slider-thumb {
+  width: 32px;
+  height: 32px;
+}
+
+.brightness-slider .slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.brightness-slider .slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+}
+
+.brightness-slider.large .slider::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+}
+
+.brightness-slider .slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+/* Sync Toggle */
+.sync-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.toggle-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.toggle-button {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background 0.3s;
+  padding: 0;
+}
+
+.toggle-button.active {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-button.active .toggle-slider {
+  transform: translateX(24px);
+  background: #667eea;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 15px 0;
+  border-top: 1px solid #333;
+  margin-top: 20px;
+}
+
+.footer p {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #333;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading p {
+  margin-top: 20px;
+  color: #888;
+}
+
+/* Error State */
+.error {
+  text-align: center;
+  padding: 40px;
+  background: #2a2a2a;
+  border-radius: 12px;
+  margin: 20px;
+}
+
+.error h2 {
+  color: #ff6b6b;
+  margin-bottom: 15px;
+}
+
+.error p {
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.error button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.error button:hover {
+  background: #5568d3;
+}
