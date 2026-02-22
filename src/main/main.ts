@@ -2,8 +2,9 @@
  * Main Process Entry Point for BrightSync
  */
 
-import { app, BrowserWindow, dialog } from "electron";
+import { app, BrowserWindow, dialog, nativeImage } from "electron";
 import * as path from "path";
+import * as fs from "fs";
 import { MonitorManager } from "./monitor.manager";
 import { BrightnessController } from "./brightness.controller";
 import { IPCHandler } from "./ipc";
@@ -94,9 +95,29 @@ class BrightSyncApp {
   }
 
   /**
+   * Resolve the window / taskbar icon, preferring the BrightSync logo.
+   */
+  private getWindowIcon(): Electron.NativeImage {
+    const candidates = [
+      path.join(__dirname, "../../assets/BrightSync-logo.png"),
+      path.join(__dirname, "../../assets/tray-icon.png"),
+      path.join(process.resourcesPath ?? "", "assets/BrightSync-logo.png"),
+    ];
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        return nativeImage.createFromPath(candidate);
+      }
+    }
+    return nativeImage.createEmpty();
+  }
+
+  /**
    * Initialize the application
    */
   private initializeApp(): void {
+    // Set App User Model ID so Windows groups the taskbar button correctly
+    app.setAppUserModelId("com.brightsync.app");
+
     // Handle app ready event
     app.whenReady().then(() => {
       this.onAppReady();
@@ -212,7 +233,7 @@ class BrightSyncApp {
         nodeIntegration: false,
         sandbox: false,
       },
-      icon: path.join(__dirname, "../../assets/icon.ico"),
+      icon: this.getWindowIcon(),
       title: "BrightSync",
       autoHideMenuBar: true,
     });

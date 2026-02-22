@@ -5,6 +5,7 @@
 import { Tray, Menu, nativeImage, BrowserWindow, app } from "electron";
 import { BrightnessController } from "./brightness.controller";
 import * as path from "path";
+import * as fs from "fs";
 
 export class TrayService {
   private tray: Tray | null = null;
@@ -108,11 +109,21 @@ export class TrayService {
    * Get tray icon path
    */
   private getTrayIconPath(): string {
-    // Try to load icon from assets folder
-    const assetPath = path.join(__dirname, "../../assets/tray-icon.png");
+    const candidates = [
+      path.join(__dirname, "../../assets/BrightSync-logo.png"),
+      path.join(__dirname, "../../assets/tray-icon.png"),
+      path.join(process.resourcesPath ?? "", "assets/BrightSync-logo.png"),
+    ];
 
-    // Fallback: create a simple icon programmatically if asset doesn't exist
-    return assetPath;
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        console.log("Using tray icon:", candidate);
+        return candidate;
+      }
+    }
+
+    console.warn("No tray icon found; tray will use an empty image.");
+    return candidates[0]; // nativeImage.createFromPath handles missing files gracefully
   }
 
   /**
