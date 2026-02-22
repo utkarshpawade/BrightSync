@@ -1,5 +1,27 @@
 # BrightSync - Quick Start Guide
 
+## ⚠️ Important: Administrator Privileges Required
+
+**BrightSync needs administrator privileges to control your laptop's internal display brightness.**
+
+### How to Run with Admin Rights
+
+**After Installation:**
+
+1. Find the BrightSync shortcut
+2. Right-click on it
+3. Select **"Run as administrator"**
+4. Accept the UAC prompt
+
+**For Development:**
+
+```powershell
+npm run dev:admin
+```
+
+**Why is this needed?**
+Windows uses WMI (Windows Management Instrumentation) for internal display brightness control, which requires elevated privileges. External monitors may work without admin rights, but your laptop screen will not respond without elevation.
+
 ## Installation
 
 1. Download `BrightSync-Setup-1.0.0.exe`

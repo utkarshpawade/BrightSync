@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist"
+  },
+  "include": ["src/main/**/*", "src/preload/**/*", "src/shared/**/*"],
+  "exclude": [
+    "src/renderer/**/*",
+    "src/tests/**/*",
+    "node_modules",
+    "dist",
+    "build",
+    "native"
+  ]
+}

@@ -2,7 +2,7 @@
  * Main Process Entry Point for BrightSync
  */
 
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, dialog } from "electron";
 import * as path from "path";
 import { MonitorManager } from "./monitor.manager";
 import { BrightnessController } from "./brightness.controller";
@@ -10,6 +10,10 @@ import { IPCHandler } from "./ipc";
 import { TrayService } from "./tray.service";
 import { HotkeyService } from "./hotkey.service";
 import { WINDOW } from "../shared/constants";
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
 
 class BrightSyncApp {
   private mainWindow: BrowserWindow | null = null;
@@ -19,9 +23,74 @@ class BrightSyncApp {
   private trayService!: TrayService;
   private hotkeyService!: HotkeyService;
   private isQuitting: boolean = false;
+  private mockMode: boolean = false;
 
   constructor() {
+    // Detect mock mode from command line arguments
+    this.detectMockMode();
     this.initializeApp();
+  }
+
+  /**
+   * Detect if --mock flag is present in command line arguments
+   */
+  private detectMockMode(): void {
+    this.mockMode = process.argv.includes("--mock");
+
+    if (this.mockMode) {
+      console.log("=========================================");
+      console.log("  MOCK MODE ENABLED");
+      console.log("  All hardware calls will be simulated");
+      console.log("=========================================");
+    } else {
+      console.log("Running in REAL mode with actual hardware");
+    }
+  }
+
+  /**
+   * Check if app is running with administrator privileges
+   */
+  private async checkAdminPrivileges(): Promise<boolean> {
+    if (process.platform !== "win32") {
+      return true; // Only needed on Windows
+    }
+
+    try {
+      // Run a PowerShell command to check if running as admin
+      const { stdout } = await execAsync(
+        'powershell -Command "([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)"',
+      );
+      return stdout.trim().toLowerCase() === "true";
+    } catch (error) {
+      console.error("Failed to check admin privileges:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Show warning dialog about admin privileges
+   */
+  private async showAdminWarning(): Promise<void> {
+    const result = await dialog.showMessageBox({
+      type: "warning",
+      title: "Administrator Privileges Required",
+      message:
+        "BrightSync requires administrator privileges to control laptop display brightness",
+      detail:
+        "Internal laptop displays use Windows WMI (Windows Management Instrumentation) which requires elevated privileges.\n\n" +
+        "To fix this:\n" +
+        "1. Close the app\n" +
+        "2. Run: npm run dev:admin\n" +
+        "   OR right-click the BrightSync shortcut and select 'Run as administrator'\n\n" +
+        "Note: External monitors may still work without admin rights.",
+      buttons: ["Continue Anyway", "Exit"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+
+    if (result.response === 1) {
+      app.quit();
+    }
   }
 
   /**
@@ -65,6 +134,19 @@ class BrightSyncApp {
   private async onAppReady(): Promise<void> {
     console.log("BrightSync starting...");
 
+    // Check for admin privileges (skip in mock mode)
+    if (!this.mockMode) {
+      const isAdmin = await this.checkAdminPrivileges();
+      if (!isAdmin) {
+        console.warn(
+          "⚠ WARNING: Running without administrator privileges. Internal display brightness control may not work.",
+        );
+        await this.showAdminWarning();
+      } else {
+        console.log("✓ Running with administrator privileges");
+      }
+    }
+
     try {
       // Initialize services
       this.initializeServices();
@@ -94,8 +176,8 @@ class BrightSyncApp {
    * Initialize all services
    */
   private initializeServices(): void {
-    // Initialize monitor manager
-    this.monitorManager = new MonitorManager();
+    // Initialize monitor manager with mock mode flag
+    this.monitorManager = new MonitorManager(this.mockMode);
 
     // Initialize brightness controller
     this.brightnessController = new BrightnessController(this.monitorManager);

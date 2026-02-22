@@ -9,6 +9,7 @@ import * as path from "path";
 let nativeAddon: NativeBrightnessAddon | null = null;
 
 interface NativeBrightnessAddon {
+  initialize(config: { mockMode: boolean }): boolean;
   getMonitors(): Monitor[];
   getBrightness(monitorId: string): number;
   setBrightness(monitorId: string, value: number): boolean;
@@ -17,7 +18,7 @@ interface NativeBrightnessAddon {
 /**
  * Initialize the native addon
  */
-function initializeNativeAddon(): NativeBrightnessAddon {
+function initializeNativeAddon(mockMode: boolean): NativeBrightnessAddon {
   if (nativeAddon) {
     return nativeAddon;
   }
@@ -29,7 +30,18 @@ function initializeNativeAddon(): NativeBrightnessAddon {
       "../../build/Release/brightness.node",
     );
     nativeAddon = require(addonPath) as NativeBrightnessAddon;
-    console.log("Native brightness addon loaded successfully");
+
+    // Initialize with mock mode configuration
+    const success = nativeAddon.initialize({ mockMode });
+
+    if (success) {
+      console.log(
+        `Native brightness addon loaded successfully in ${mockMode ? "MOCK" : "REAL"} mode`,
+      );
+    } else {
+      console.warn("Native brightness addon initialization returned false");
+    }
+
     return nativeAddon;
   } catch (error) {
     console.error("Failed to load native brightness addon:", error);
@@ -43,8 +55,8 @@ export class MonitorManager {
   private lastUpdate: number = 0;
   private cacheTimeout: number = 500; // Cache monitor list for 500ms
 
-  constructor() {
-    this.addon = initializeNativeAddon();
+  constructor(mockMode: boolean = false) {
+    this.addon = initializeNativeAddon(mockMode);
     this.refreshMonitors();
   }
 

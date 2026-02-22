@@ -4,8 +4,9 @@
       "target_name": "brightness",
       "sources": [
         "native/brightness.cc",
-        "native/win_internal.cpp",
-        "native/win_ddc.cpp"
+        "native/real_monitor.cpp",
+        "native/mock_monitor.cpp",
+        "native/monitor_factory.cpp"
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")"

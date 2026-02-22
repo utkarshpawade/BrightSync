@@ -262,15 +262,15 @@ bool SetInternalBrightness(int brightness)
                         // Set timeout parameter (must be 0 for immediate change or > 0 for transition)
                         VARIANT vtTimeout;
                         VariantInit(&vtTimeout);
-                        vtTimeout.uiVal = 0;
-                        vtTimeout.vt = VT_UI4;
+                        vtTimeout.lVal = 0;  // Use lVal for VT_I4 (signed int)
+                        vtTimeout.vt = VT_I4;  // Use VT_I4 instead of VT_UI4
                         pClassInstance->Put(L"Timeout", 0, &vtTimeout, 0);
                         VariantClear(&vtTimeout);
 
                         // Set brightness parameter
                         VARIANT vtBrightness;
                         VariantInit(&vtBrightness);
-                        vtBrightness.uiVal = brightness;
+                        vtBrightness.bVal = (BYTE)brightness;  // Use bVal for VT_UI1
                         vtBrightness.vt = VT_UI1;
                         pClassInstance->Put(L"Brightness", 0, &vtBrightness, 0);
                         VariantClear(&vtBrightness);

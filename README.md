@@ -2,6 +2,10 @@
 
 A production-ready Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs.
 
+<<<<<<< HEAD
+=======
+<!-- ![BrightSync](assets/screenshot.png) -->
+>>>>>>> 867ebe5 (working with wmi)
 
 ## Features
 
@@ -62,6 +66,39 @@ A native C++ addon was essential for BrightSync because:
 4. **Type Safety** - N-API provides stable, version-independent Node.js bindings
 5. **Reliability** - Direct API calls ensure compatibility across Windows versions
 
+### Hardware Abstraction Layer (HAL)
+
+BrightSync implements a clean HAL architecture that separates hardware communication from application logic:
+
+**Interface Layer** (`IMonitor`):
+
+- Abstract interface for all monitor operations
+- Enables testability and future extensibility
+
+**Real Implementation** (`RealMonitor`):
+
+- Uses actual Windows APIs (WMI, DDC/CI)
+- Production mode implementation
+
+**Mock Implementation** (`MockMonitor`):
+
+- Simulated monitors for testing
+- No hardware dependencies
+- Full application functionality
+
+**Factory Pattern**:
+
+- Runtime selection between real and mock
+- CLI flag support: `--mock`
+
+This architecture enables:
+
+- ✅ Testing without hardware
+- ✅ Rapid development iteration
+- ✅ CI/CD integration
+- ✅ Future cross-platform support
+- ✅ Clean code separation
+
 **Internal Display (Laptop)**:
 
 - Uses WMI (Windows Management Instrumentation)
@@ -111,8 +148,15 @@ BrightSync/
 ├── native/                  # Native C++ addon
 │   ├── brightness.h        # Header file
 │   ├── brightness.cc       # N-API bindings
-│   ├── win_internal.cpp    # Internal display (WMI)
-│   └── win_ddc.cpp        # External displays (DDC/CI)
+│   ├── monitor_interface.h # HAL interface
+│   ├── real_monitor.h      # Real hardware header
+│   ├── real_monitor.cpp    # Real hardware implementation
+│   ├── mock_monitor.h      # Mock implementation header
+│   ├── mock_monitor.cpp    # Mock implementation
+│   ├── monitor_factory.h   # Factory header
+│   ├── monitor_factory.cpp # Factory implementation
+│   ├── win_internal.cpp    # Internal display (WMI) - deprecated
+│   └── win_ddc.cpp        # External displays (DDC/CI) - deprecated
 │
 ├── build/                   # Build output
 └── dist/                    # Compiled TypeScript
@@ -128,6 +172,35 @@ BrightSync/
 - **Visual Studio Build Tools** 2019 or later
   - Install from: https://visualstudio.microsoft.com/downloads/
   - Required: "Desktop development with C++" workload
+
+### ⚠️ Administrator Privileges Required
+
+**BrightSync requires administrator privileges to control internal laptop display brightness.**
+
+**Why?** Windows uses WMI (Windows Management Instrumentation) for internal display brightness control, which requires elevated privileges. External monitors using DDC/CI may work without admin rights, but internal displays will not respond without elevation.
+
+**How to Run with Admin Rights:**
+
+#### Development Mode
+
+```powershell
+# Option 1: Use the admin launcher script (recommended)
+npm run dev:admin
+
+# Option 2: Run PowerShell as Administrator, then:
+npm start
+```
+
+#### Production/Installed App
+
+Right-click the BrightSync shortcut and select **"Run as administrator"**
+
+**What happens without admin rights?**
+
+- App will show a warning dialog on startup
+- External monitors may work normally
+- Internal laptop display brightness will NOT change
+- WMI calls will fail silently
 
 ### Install Build Tools (First Time)
 
@@ -158,6 +231,24 @@ npm start
 ```
 
 ## Development Setup
+
+### Mock Mode for Testing
+
+BrightSync now includes a **Hardware Abstraction Layer (HAL)** with mock mode for testing without actual hardware:
+
+```powershell
+# Run with simulated monitors (no hardware required)
+npm start -- --mock
+```
+
+Mock mode provides:
+
+- 3 simulated monitors (1 internal, 2 external)
+- Full application functionality without hardware
+- Console logging of all operations
+- Perfect for development and testing
+
+See [HAL_MOCK_MODE.md](HAL_MOCK_MODE.md) for detailed documentation.
 
 ### 1. Install Dependencies
 
@@ -322,11 +413,13 @@ This creates a smooth visual transition instead of instant jumps.
 The application gracefully handles:
 
 - Monitors that don't support DDC/CI
-- Permission errors (runs as user, no admin required)
+- Missing administrator privileges (shows warning dialog)
 - Monitor hot-plug/unplug during runtime
 - COM initialization failures
 - Invalid brightness values (clamped to valid range)
 - Native addon loading failures
+
+**Note**: Internal display brightness control requires administrator privileges due to Windows WMI requirements.
 
 ## Troubleshooting
 
@@ -347,6 +440,20 @@ The application gracefully handles:
 
 ### Brightness Not Changing
 
+**Internal Display (Laptop)**:
+
+⚠️ **Most Common Issue: Missing Administrator Privileges**
+
+Internal laptop displays require administrator privileges because Windows uses WMI (Windows Management Instrumentation) for brightness control.
+
+**Solutions:**
+
+1. **Run as Administrator**: Use `npm run dev:admin` or right-click the app and "Run as administrator"
+2. Check if the admin warning dialog appeared on startup
+3. Ensure WMI service is running: `Get-Service Winmgmt` in PowerShell
+4. Update graphics drivers
+5. Check Windows power settings haven't disabled brightness control
+
 **External Monitors**:
 
 - Ensure monitor supports DDC/CI
@@ -354,19 +461,23 @@ The application gracefully handles:
 - Try unplugging/replugging monitor
 - Some monitors don't support DDC/CI over certain ports (try DisplayPort instead of HDMI)
 
-**Internal Display**:
+### Permission Errors / Access Denied
 
-- Check Windows power settings
-- Ensure WMI service is running
-- Update graphics drivers
+**If you see "Failed to get WMI service" or "Access Denied" errors:**
 
-### Permission Errors
+This means the app is running without administrator privileges. Internal display brightness control **requires** elevation.
 
-The app should run without administrator privileges. If you encounter permission errors:
+**Solutions:**
 
-1. Check Windows Defender isn't blocking
-2. Temporarily disable antivirus for testing
-3. Run as Administrator (not recommended for normal use)
+1. Close the app completely (including system tray)
+2. Restart with admin rights:
+   ```powershell
+   npm run dev:admin
+   ```
+3. For installed app: Right-click shortcut → "Run as administrator"
+4. The app will now show "✓ Running with administrator privileges" in the console
+
+**Note:** External monitors may work without admin rights, but internal displays will NOT work without elevation.
 
 ### Hotkeys Not Working
 
