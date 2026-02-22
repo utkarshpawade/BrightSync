@@ -2,10 +2,7 @@
 
 A production-ready Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs.
 
-<<<<<<< HEAD
-=======
-<!-- ![BrightSync](assets/screenshot.png) -->
->>>>>>> 867ebe5 (working with wmi)
+
 
 ## Features
 
